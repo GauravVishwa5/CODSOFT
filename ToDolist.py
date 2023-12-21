@@ -1,5 +1,4 @@
 from tkinter import *
-from tkinter import ttk
 import os
 
 class ToDolist:
@@ -37,17 +36,20 @@ class ToDolist:
                                bg='#03fca1', fg="black", command=self.delT)
         self.button_1.place(x=30, y=220)
 
+        self.button_2 = Button(self.root, text='Update', font='20', width=10, bd=5,
+                               bg='#03fca1', fg="black", command=self.update_task)
+        self.button_2.place(x=30, y=260)
+
     def check_file(self):
         if not os.path.exists('To-Dolist/list.txt'):
             with open('To-Dolist/list.txt', 'w'):
                 pass
 
         with open('To-Dolist/list.txt', 'r') as file:
-            read = file.readline()
+            read = file.readlines()
             for i in read:
                 readt = i.split()
                 self.main_text.insert(END, readt)
-            file.close()
 
     def add(self):
         addlist = self.text.get(1.0, END)
@@ -59,16 +61,22 @@ class ToDolist:
     def delT(self):
         del_text = self.main_text.curselection()
         if del_text:
-            look = self.main_text.get(del_text)
-            with open('To-Dolist/list.txt', 'r+') as f:
-                new_f = f.readlines()
-                f.seek(0)
-                for line in new_f:
-                    item = str(look)
-                    if item not in line:
-                        f.write(line)
-                f.truncate()
             self.main_text.delete(del_text)
+            self.save_to_file()
+
+    def update_task(self):
+        selected_index = self.main_text.curselection()
+        if selected_index:
+            updated_task = self.text.get(1.0, END)
+            self.main_text.delete(selected_index)
+            self.main_text.insert(selected_index, updated_task)
+            self.save_to_file()
+            self.text.delete(1.0, END)
+
+    def save_to_file(self):
+        with open('To-Dolist/list.txt', 'w') as file:
+            for task in self.main_text.get(0, END):
+                file.write(task)
 
 def main():
     root = Tk()
